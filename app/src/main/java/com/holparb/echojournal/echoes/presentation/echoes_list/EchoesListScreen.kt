@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoFilterRow
 import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoRecordFloatingActionButton
 import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoesListTopBar
 import com.holparb.echojournal.echoes.presentation.echoes_list.components.EmptyEchoesList
@@ -58,6 +59,17 @@ fun EchoesListScreen(
                 )
                 .padding(paddingValues)
         ) {
+            EchoFilterRow(
+                moodChipContent = state.moodChipContent,
+                hasActiveMoodFilters = state.hasActiveMoodFilters,
+                hasActiveTopicFilters = state.hasActiveTopicFilters,
+                selectedEchoFilterChip = state.selectedEchoFilterChip,
+                moods = state.moods,
+                topicChipTitle = state.topicChipTitle,
+                topics = state.topics,
+                onAction = onAction,
+                modifier = Modifier.fillMaxWidth()
+            )
             when {
                 state.isLoadingData -> {
                     CircularProgressIndicator(
