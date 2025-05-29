@@ -18,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEchoList
@@ -83,6 +84,16 @@ fun EchoListScreen(
                 !state.hasEchoesRecorded -> {
                     EmptyEchoList(
                         modifier = Modifier.weight(1f)
+                    )
+                }
+                else -> {
+                    EchoList(
+                        sections = state.echoDaySectionsList,
+                        onPlayClick = { EchoListAction.OnPlayEchoClick(it) },
+                        onPauseClick = { EchoListAction.OnPauseEchoClick },
+                        onTrackSizeAvailable = { trackSizeInfo ->
+                            EchoListAction.OnTrackSizeAvailable(trackSizeInfo)
+                        }
                     )
                 }
             }

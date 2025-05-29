@@ -1,6 +1,7 @@
 package com.holparb.echojournal.echoes.presentation.echo_list
 
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
+import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 
 sealed interface EchoListAction {
@@ -14,4 +15,7 @@ sealed interface EchoListAction {
     data object OnFabClick: EchoListAction
     data object OnFabLongClick: EchoListAction
     data object OnSettingsClick: EchoListAction
+    data class OnPlayEchoClick(val echoId: Int): EchoListAction
+    data object OnPauseEchoClick: EchoListAction
+    data class OnTrackSizeAvailable(val trackSizeInfo: TrackSizeInfo): EchoListAction
 }

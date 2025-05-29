@@ -70,6 +70,9 @@ class EchoListViewModel : ViewModel() {
                 toggleTopicFilter(action.topic)
             }
             EchoListAction.OnSettingsClick -> {}
+            EchoListAction.OnPauseEchoClick -> {}
+            is EchoListAction.OnPlayEchoClick -> {}
+            is EchoListAction.OnTrackSizeAvailable -> {}
         }
     }
 
