@@ -29,9 +29,8 @@ private val LightColorScheme = lightColorScheme(
 fun EchoJournalTheme(
     content: @Composable () -> Unit
 ) {
-
     MaterialTheme(
-        colorScheme = lightColorScheme(),
+        colorScheme = LightColorScheme,
         typography = Typography,
         content = content
     )
