@@ -1,4 +1,4 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list
+package com.holparb.echojournal.echoes.presentation.echo_list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -17,37 +17,37 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
-import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoFilterRow
-import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoRecordFloatingActionButton
-import com.holparb.echojournal.echoes.presentation.echoes_list.components.EchoesListTopBar
-import com.holparb.echojournal.echoes.presentation.echoes_list.components.EmptyEchoesList
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEchoList
 
 @Composable
-fun EchoesListRoot(
-    viewModel: EchoesListViewModel = viewModel()
+fun EchoListRoot(
+    viewModel: EchoListViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    EchoesListScreen(
+    EchoListScreen(
         state = state,
         onAction = viewModel::onAction
     )
 }
 
 @Composable
-fun EchoesListScreen(
-    state: EchoesListState,
-    onAction: (EchoesListAction) -> Unit,
+fun EchoListScreen(
+    state: EchoListState,
+    onAction: (EchoListAction) -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
             EchoRecordFloatingActionButton(
-                onClick = { onAction(EchoesListAction.OnFabClick) }
+                onClick = { onAction(EchoListAction.OnFabClick) }
             )
         },
         topBar = {
-            EchoesListTopBar(
-                onSettingsClick = { onAction(EchoesListAction.OnSettingsClick) }
+            EchoListTopBar(
+                onSettingsClick = { onAction(EchoListAction.OnSettingsClick) }
             )
         }
     ) { paddingValues ->
@@ -80,8 +80,8 @@ fun EchoesListScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                state.hasEchoesRecorded.not() -> {
-                    EmptyEchoesList(
+                !state.hasEchoesRecorded -> {
+                    EmptyEchoList(
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -92,10 +92,10 @@ fun EchoesListScreen(
 
 @Preview
 @Composable
-private fun Preview() {
+private fun EchoListScreenPreview() {
     EchoJournalTheme {
-        EchoesListScreen(
-            state = EchoesListState(isLoadingData = false),
+        EchoListScreen(
+            state = EchoListState(isLoadingData = false),
             onAction = {}
         )
     }

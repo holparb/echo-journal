@@ -23,6 +23,7 @@ import com.holparb.echojournal.core.presentation.designsystem.theme.MoodPrimary2
 import com.holparb.echojournal.core.presentation.designsystem.theme.MoodPrimary35
 import com.holparb.echojournal.core.presentation.designsystem.theme.MoodPrimary80
 import com.holparb.echojournal.core.presentation.util.formatMMSS
+import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import com.holparb.echojournal.echoes.presentation.models.PlaybackState
 import kotlin.random.Random
@@ -39,9 +40,10 @@ fun EchoMoodPlayer(
     powerRatios: List<Float>,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onTrackSizeAvailable: (TrackSizeInfo) -> Unit,
     modifier: Modifier = Modifier,
     amplitudeBarWidth: Dp = 5.dp,
-    amplitudeBarSpacing: Dp = 4.dp
+    amplitudeBarSpacing: Dp = 4.dp,
 ) {
     val iconTint = when(moodUi) {
         null -> MoodPrimary80
@@ -125,6 +127,7 @@ private fun EchoMoodPlayerPreview() {
             powerRatios = ratios,
             onPauseClick = {},
             onPlayClick = {},
+            onTrackSizeAvailable = {},
             modifier = Modifier
                 .fillMaxWidth(),
         )

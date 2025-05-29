@@ -1,4 +1,4 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list.components
+package com.holparb.echojournal.echoes.presentation.echo_list.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -47,7 +47,7 @@ fun EchoExpandableText(
     val textToShow = remember(isClickable, isExpanded) {
         buildAnnotatedString {
             when {
-                isClickable && isExpanded.not() -> {
+                isClickable && !isExpanded -> {
                     val adjustedText = text
                         .substring(startIndex = 0, endIndex = lastCharacterIndex)
                         .dropLast(showMoreText.length + 3)
@@ -87,7 +87,7 @@ fun EchoExpandableText(
             }
             .animateContentSize(),
         onTextLayout = { result ->
-            if(isExpanded.not() && result.hasVisualOverflow) {
+            if(!isExpanded && result.hasVisualOverflow) {
                 isClickable = true
                 lastCharacterIndex = result.getLineEnd(lineIndex = collapsedMaxLines - 1)
             }

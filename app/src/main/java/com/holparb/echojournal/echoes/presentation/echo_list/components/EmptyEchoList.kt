@@ -1,4 +1,4 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list.components
+package com.holparb.echojournal.echoes.presentation.echo_list.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,7 @@ import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 
 @Composable
-fun EmptyEchoesList(
+fun EmptyEchoList(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -50,8 +50,8 @@ fun EmptyEchoesList(
 
 @Preview
 @Composable
-private fun EmptyEchoesListPreview() {
+private fun EmptyEchoListPreview() {
     EchoJournalTheme {
-        EmptyEchoesList()
+        EmptyEchoList()
     }
 }

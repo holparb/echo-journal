@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalLayoutApi::class)
 
-package com.holparb.echojournal.echoes.presentation.echoes_list.components
+package com.holparb.echojournal.echoes.presentation.echo_list.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -28,8 +28,8 @@ import com.holparb.echojournal.core.presentation.designsystem.chips.MultiChoiceC
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.SelectableDropDownOptionsMenu
 import com.holparb.echojournal.core.presentation.util.UiText
-import com.holparb.echojournal.echoes.presentation.echoes_list.EchoesListAction
-import com.holparb.echojournal.echoes.presentation.echoes_list.models.EchoFilterChip
+import com.holparb.echojournal.echoes.presentation.echo_list.EchoListAction
+import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 
@@ -42,7 +42,7 @@ fun EchoFilterRow(
     topicChipTitle: UiText,
     hasActiveTopicFilters: Boolean,
     topics: List<Selectable<String>>,
-    onAction: (EchoesListAction) -> Unit,
+    onAction: (EchoListAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -69,7 +69,7 @@ fun EchoFilterRow(
         MultiChoiceChip(
             displayText = moodChipContent.title.asString(),
             onClick = {
-                onAction(EchoesListAction.OnMoodChipClick)
+                onAction(EchoListAction.OnMoodChipClick)
             },
             leadingContent = {
                 if(moodChipContent.iconsRes.isNotEmpty()) {
@@ -89,7 +89,7 @@ fun EchoFilterRow(
             },
             isClearVisible = hasActiveMoodFilters,
             onClearClick = {
-                onAction(EchoesListAction.OnRemoveFilters(EchoFilterChip.MOODS))
+                onAction(EchoListAction.OnRemoveFilters(EchoFilterChip.MOODS))
             },
             isDropdownVisible = selectedEchoFilterChip == EchoFilterChip.MOODS,
             isHighlighted = hasActiveMoodFilters || selectedEchoFilterChip == EchoFilterChip.MOODS,
@@ -98,11 +98,11 @@ fun EchoFilterRow(
                     items = moods,
                     itemDisplayText = { moodUi -> moodUi.title.asString(context) },
                     onDismiss = {
-                        onAction(EchoesListAction.OnDismissMoodDropdown)
+                        onAction(EchoListAction.OnDismissMoodDropdown)
                     },
                     key = { moodUi -> moodUi.title.asString(context) },
                     onItemClick = { moodUi ->
-                        onAction(EchoesListAction.OnFilterByMoodClick(moodUi = moodUi.item))
+                        onAction(EchoListAction.OnFilterByMoodClick(moodUi = moodUi.item))
                     },
                     dropDownOffset = dropDownOffset,
                     maxDropdownHeight = dropDownMaxHeight,
@@ -119,11 +119,11 @@ fun EchoFilterRow(
         MultiChoiceChip(
             displayText = topicChipTitle.asString(),
             onClick = {
-                onAction(EchoesListAction.OnTopicChipClick)
+                onAction(EchoListAction.OnTopicChipClick)
             },
             isClearVisible = hasActiveTopicFilters,
             onClearClick = {
-                onAction(EchoesListAction.OnRemoveFilters(EchoFilterChip.TOPICS))
+                onAction(EchoListAction.OnRemoveFilters(EchoFilterChip.TOPICS))
             },
             isDropdownVisible = selectedEchoFilterChip == EchoFilterChip.TOPICS,
             isHighlighted = hasActiveTopicFilters || selectedEchoFilterChip == EchoFilterChip.TOPICS,
@@ -138,7 +138,7 @@ fun EchoFilterRow(
                         ),
                         itemDisplayText = { it },
                         onDismiss = {
-                            onAction(EchoesListAction.OnDismissTopicDropdown)
+                            onAction(EchoListAction.OnDismissTopicDropdown)
                         },
                         key = { it },
                         onItemClick = {},
@@ -150,11 +150,11 @@ fun EchoFilterRow(
                         items = topics,
                         itemDisplayText = { topic -> topic },
                         onDismiss = {
-                            onAction(EchoesListAction.OnDismissTopicDropdown)
+                            onAction(EchoListAction.OnDismissTopicDropdown)
                         },
                         key = { topic -> topic },
                         onItemClick = { topic ->
-                            onAction(EchoesListAction.OnFilterByTopicClick(topic.item))
+                            onAction(EchoListAction.OnFilterByTopicClick(topic.item))
                         },
                         dropDownOffset = dropDownOffset,
                         maxDropdownHeight = dropDownMaxHeight,

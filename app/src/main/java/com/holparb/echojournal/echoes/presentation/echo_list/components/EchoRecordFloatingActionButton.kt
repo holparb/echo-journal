@@ -1,4 +1,4 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list.components
+package com.holparb.echojournal.echoes.presentation.echo_list.components
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons

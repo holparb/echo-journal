@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
-import com.holparb.echojournal.echoes.presentation.echoes_list.EchoesListRoot
+import com.holparb.echojournal.echoes.presentation.echo_list.EchoListRoot
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EchoJournalTheme {
-                EchoesListRoot()
+                EchoListRoot()
             }
         }
     }

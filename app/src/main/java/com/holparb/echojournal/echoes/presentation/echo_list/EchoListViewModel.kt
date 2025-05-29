@@ -1,11 +1,11 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list
+package com.holparb.echojournal.echoes.presentation.echo_list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.util.UiText
-import com.holparb.echojournal.echoes.presentation.echoes_list.models.EchoFilterChip
+import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +16,11 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class EchoesListViewModel : ViewModel() {
+class EchoListViewModel : ViewModel() {
 
     private var hasLoadedInitialData = false
 
-    private val _state = MutableStateFlow(EchoesListState())
+    private val _state = MutableStateFlow(EchoListState())
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
@@ -31,45 +31,45 @@ class EchoesListViewModel : ViewModel() {
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = EchoesListState()
+            initialValue = EchoListState()
         )
 
     private val selectedMoodFilters = MutableStateFlow<List<MoodUi>>(emptyList())
     private val selectedTopicFilters = MutableStateFlow<List<String>>(emptyList())
 
-    fun onAction(action: EchoesListAction) {
+    fun onAction(action: EchoListAction) {
         when (action) {
-            EchoesListAction.OnFabClick -> {}
-            EchoesListAction.OnFabLongClick -> {}
-            EchoesListAction.OnMoodChipClick -> {
+            EchoListAction.OnFabClick -> {}
+            EchoListAction.OnFabLongClick -> {}
+            EchoListAction.OnMoodChipClick -> {
                 _state.update {
                     it.copy(selectedEchoFilterChip = EchoFilterChip.MOODS)
                 }
             }
-            EchoesListAction.OnTopicChipClick -> {
+            EchoListAction.OnTopicChipClick -> {
                 _state.update {
                     it.copy(selectedEchoFilterChip = EchoFilterChip.TOPICS)
                 }
             }
-            is EchoesListAction.OnRemoveFilters -> {
+            is EchoListAction.OnRemoveFilters -> {
                 when(action.filterType) {
                     EchoFilterChip.MOODS -> selectedMoodFilters.update { emptyList() }
                     EchoFilterChip.TOPICS -> selectedTopicFilters.update { emptyList() }
                 }
             }
-            EchoesListAction.OnDismissMoodDropdown,
-            EchoesListAction.OnDismissTopicDropdown -> {
+            EchoListAction.OnDismissMoodDropdown,
+            EchoListAction.OnDismissTopicDropdown -> {
                 _state.update {
                     it.copy(selectedEchoFilterChip = null)
                 }
             }
-            is EchoesListAction.OnFilterByMoodClick -> {
+            is EchoListAction.OnFilterByMoodClick -> {
                 toggleMoodFilter(action.moodUi)
             }
-            is EchoesListAction.OnFilterByTopicClick -> {
+            is EchoListAction.OnFilterByTopicClick -> {
                 toggleTopicFilter(action.topic)
             }
-            EchoesListAction.OnSettingsClick -> {}
+            EchoListAction.OnSettingsClick -> {}
         }
     }
 

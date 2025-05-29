@@ -1,4 +1,4 @@
-package com.holparb.echojournal.echoes.presentation.echoes_list.components
+package com.holparb.echojournal.echoes.presentation.echo_list.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
@@ -17,7 +17,7 @@ import com.holparb.echojournal.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EchoesListTopBar(
+fun EchoListTopBar(
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
