@@ -17,20 +17,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.holparb.echojournal.core.presentation.util.ObserveAsEvents
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
-import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EchoListRoot(
-    viewModel: EchoListViewModel = viewModel()
+    viewModel: EchoListViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

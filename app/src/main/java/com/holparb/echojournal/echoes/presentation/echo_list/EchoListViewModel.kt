@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.util.UiText
+import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
@@ -21,7 +22,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class EchoListViewModel : ViewModel() {
+class EchoListViewModel(
+    private val voiceRecorder: VoiceRecorder
+) : ViewModel() {
 
     private var hasLoadedInitialData = false
 
