@@ -5,16 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.util.UiText
+import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class EchoListViewModel : ViewModel() {
 
@@ -37,10 +42,27 @@ class EchoListViewModel : ViewModel() {
     private val selectedMoodFilters = MutableStateFlow<List<MoodUi>>(emptyList())
     private val selectedTopicFilters = MutableStateFlow<List<String>>(emptyList())
 
+    private val _events = Channel<EchoListEvent>()
+    val events = _events.receiveAsFlow()
+
     fun onAction(action: EchoListAction) {
         when (action) {
-            EchoListAction.OnFabClick -> {}
-            EchoListAction.OnFabLongClick -> {}
+            EchoListAction.OnFabClick -> {
+                requestAudioPermission()
+                _state.update {
+                    it.copy(
+                        currentCaptureMethod = AudioCaptureMethod.STANDARD
+                    )
+                }
+            }
+            EchoListAction.OnFabLongClick -> {
+                requestAudioPermission()
+                _state.update {
+                    it.copy(
+                        currentCaptureMethod = AudioCaptureMethod.QUICK
+                    )
+                }
+            }
             EchoListAction.OnMoodChipClick -> {
                 _state.update {
                     it.copy(selectedEchoFilterChip = EchoFilterChip.MOODS)
@@ -73,7 +95,14 @@ class EchoListViewModel : ViewModel() {
             EchoListAction.OnPauseEchoClick -> {}
             is EchoListAction.OnPlayEchoClick -> {}
             is EchoListAction.OnTrackSizeAvailable -> {}
+            EchoListAction.OnAudioPermissionGranted -> {
+                Timber.d("Recording started")
+            }
         }
+    }
+
+    private fun requestAudioPermission() = viewModelScope.launch {
+        _events.send(EchoListEvent.RequestAudioPermission)
     }
 
     private fun toggleMoodFilter(moodUi: MoodUi) {
