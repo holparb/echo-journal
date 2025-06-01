@@ -1,6 +1,7 @@
 package com.holparb.echojournal.echoes.presentation.echo_list
 
 import android.Manifest
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -15,8 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.holparb.echojournal.core.presentation.util.ObserveAsEvents
@@ -24,9 +27,12 @@ import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilt
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordingSheet
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
+import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun EchoListRoot(
@@ -41,12 +47,23 @@ fun EchoListRoot(
             viewModel.onAction(EchoListAction.OnAudioPermissionGranted)
         }
     }
+    val context = LocalContext.current
     ObserveAsEvents(
         viewModel.events
     ) { event ->
         when(event) {
             EchoListEvent.RequestAudioPermission -> {
                 permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+            EchoListEvent.OnDoneRecording -> {
+                Timber.d("Recording successful")
+            }
+            EchoListEvent.RecordingTooShort -> {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.audio_recording_was_too_short),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -119,6 +136,17 @@ fun EchoListScreen(
                     )
                 }
             }
+        }
+
+        if(state.recordingState in listOf(RecordingState.NORMAL_RECORDING, RecordingState.PAUSED)) {
+            EchoRecordingSheet(
+                formattedEchoDuration = state.formattedRecordDuration,
+                isRecording = state.recordingState == RecordingState.NORMAL_RECORDING,
+                onDismiss = { onAction(EchoListAction.OnCancelRecording) },
+                onResumeClick = { onAction(EchoListAction.OnResumeRecordingClick) },
+                onPauseClick = { onAction(EchoListAction.OnPauseRecordingClick) },
+                onCompleteRecording = {onAction(EchoListAction.OnCompleteRecording)},
+            )
         }
     }
 }

@@ -8,23 +8,31 @@ import com.holparb.echojournal.core.presentation.util.UiText
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
+import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import kotlin.time.Duration.Companion.seconds
 
 class EchoListViewModel(
     private val voiceRecorder: VoiceRecorder
 ) : ViewModel() {
+
+    companion object {
+        private val MIN_RECORDING_DURATION = 1.5.seconds
+    }
 
     private var hasLoadedInitialData = false
 
@@ -98,14 +106,92 @@ class EchoListViewModel(
             EchoListAction.OnPauseEchoClick -> {}
             is EchoListAction.OnPlayEchoClick -> {}
             is EchoListAction.OnTrackSizeAvailable -> {}
+
             EchoListAction.OnAudioPermissionGranted -> {
-                Timber.d("Recording started")
+                startRecording(audioCaptureMethod = AudioCaptureMethod.STANDARD)
             }
+            EchoListAction.OnCancelRecording -> cancelRecording()
+            EchoListAction.OnCompleteRecording -> stopRecording()
+            EchoListAction.OnPauseRecordingClick -> pauseRecording()
+            EchoListAction.OnResumeRecordingClick -> resumeRecording()
         }
     }
 
     private fun requestAudioPermission() = viewModelScope.launch {
         _events.send(EchoListEvent.RequestAudioPermission)
+    }
+
+    private fun startRecording(audioCaptureMethod: AudioCaptureMethod) {
+        _state.update {
+            it.copy(
+                recordingState = when(audioCaptureMethod) {
+                    AudioCaptureMethod.STANDARD -> RecordingState.NORMAL_RECORDING
+                    AudioCaptureMethod.QUICK -> RecordingState.QUICK_RECORDING
+                }
+            )
+        }
+
+        voiceRecorder.start()
+
+        if(audioCaptureMethod == AudioCaptureMethod.STANDARD) {
+            voiceRecorder
+                .recordingDetails
+                .distinctUntilChangedBy { it.duration }
+                .map { it.duration }
+                .onEach { duration ->
+                    _state.update {
+                        it.copy(
+                            recordingElapsedDuration = duration
+                        )
+                    }
+                }
+                .launchIn(viewModelScope)
+        }
+    }
+
+    private fun pauseRecording() {
+        voiceRecorder.pause()
+        _state.update {
+            it.copy(
+                recordingState = RecordingState.PAUSED
+            )
+        }
+    }
+
+    private fun resumeRecording() {
+        voiceRecorder.resume()
+        _state.update {
+            it.copy(
+                recordingState = RecordingState.NORMAL_RECORDING
+            )
+        }
+    }
+
+    private fun cancelRecording() {
+        _state.update {
+            it.copy(
+                recordingState = RecordingState.NOT_RECORDING
+            )
+        }
+        voiceRecorder.cancel()
+    }
+
+    private fun stopRecording() {
+        voiceRecorder.stop()
+        _state.update {
+            it.copy(
+                recordingState = RecordingState.NOT_RECORDING
+            )
+        }
+
+        val recordingDetails = voiceRecorder.recordingDetails.value
+        viewModelScope.launch {
+            if(recordingDetails.duration < MIN_RECORDING_DURATION) {
+                _events.send(EchoListEvent.RecordingTooShort)
+            } else {
+                _events.send(EchoListEvent.OnDoneRecording)
+            }
+        }
     }
 
     private fun toggleMoodFilter(moodUi: MoodUi) {

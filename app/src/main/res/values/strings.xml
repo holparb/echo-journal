@@ -21,6 +21,9 @@
     <string name="recording_your_memories">Recording your memories…</string>
     <string name="recording_paused">Recording paused</string>
     <string name="pause_or_resume_recording">Pause or resume recording</string>
+    <string name="pause_recording">Pause recording</string>
+    <string name="finish_recording">Finish recording</string>
+    <string name="start_recording">Start recording</string>
     <string name="cancel_recording">Cancel recording</string>
     <string name="navigate_back">Navigate back</string>
     <string name="new_entry">New Entry</string>
