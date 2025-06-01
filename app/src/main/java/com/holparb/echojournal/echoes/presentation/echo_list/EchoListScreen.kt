@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +24,7 @@ import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.holparb.echojournal.core.presentation.util.ObserveAsEvents
+import com.holparb.echojournal.core.presentation.util.isAppInForeground
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
@@ -65,6 +67,13 @@ fun EchoListRoot(
                     Toast.LENGTH_LONG
                 ).show()
             }
+        }
+    }
+
+    val isAppInForeground by isAppInForeground()
+    LaunchedEffect(isAppInForeground, state.recordingState) {
+        if(state.recordingState == RecordingState.NORMAL_RECORDING && !isAppInForeground) {
+            viewModel.onAction(EchoListAction.OnPauseRecordingClick)
         }
     }
 
