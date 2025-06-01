@@ -40,6 +40,7 @@ import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.holparb.echojournal.core.presentation.designsystem.theme.Microphone
 import com.holparb.echojournal.core.presentation.designsystem.theme.Pause
 import com.holparb.echojournal.core.presentation.designsystem.theme.buttonGradient
+import com.holparb.echojournal.core.presentation.designsystem.theme.pressedButtonGradient
 import com.holparb.echojournal.core.presentation.designsystem.theme.primary90
 import com.holparb.echojournal.core.presentation.designsystem.theme.primary95
 
@@ -165,7 +166,11 @@ fun SheetContent(
                     )
                     .padding(16.dp)
                     .background(
-                        brush = MaterialTheme.colorScheme.buttonGradient,
+                        brush = if(isPressed) {
+                            MaterialTheme.colorScheme.pressedButtonGradient
+                        } else {
+                            MaterialTheme.colorScheme.buttonGradient
+                        },
                         shape = CircleShape
                     )
                     .clip(CircleShape)
