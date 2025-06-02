@@ -37,7 +37,6 @@ import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEch
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun EchoListRoot(
