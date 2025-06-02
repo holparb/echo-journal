@@ -58,7 +58,7 @@ class EchoListViewModel(
 
     fun onAction(action: EchoListAction) {
         when (action) {
-            EchoListAction.OnFabClick -> {
+            EchoListAction.OnRecordFabClick -> {
                 requestAudioPermission()
                 _state.update {
                     it.copy(
@@ -66,13 +66,16 @@ class EchoListViewModel(
                     )
                 }
             }
-            EchoListAction.OnFabLongClick -> {
+            EchoListAction.OnRequestPermissionQuickRecording -> {
                 requestAudioPermission()
                 _state.update {
                     it.copy(
                         currentCaptureMethod = AudioCaptureMethod.QUICK
                     )
                 }
+            }
+            EchoListAction.OnRecordFabLongClick -> {
+                startRecording(AudioCaptureMethod.QUICK)
             }
             EchoListAction.OnMoodChipClick -> {
                 _state.update {

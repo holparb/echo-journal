@@ -1,19 +1,13 @@
 package com.holparb.echojournal.echoes.presentation.echo_list.components
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -25,12 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,12 +29,8 @@ import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.Microphone
 import com.holparb.echojournal.core.presentation.designsystem.theme.Pause
-import com.holparb.echojournal.core.presentation.designsystem.theme.buttonGradient
-import com.holparb.echojournal.core.presentation.designsystem.theme.pressedButtonGradient
-import com.holparb.echojournal.core.presentation.designsystem.theme.primary90
-import com.holparb.echojournal.core.presentation.designsystem.theme.primary95
 
-private const val PRIMARY_BUTTON_BUBBLE_SIZE_DP = 128
+private const val PRIMARY_BUTTON_BUBBLE_SIZE_DP = 72
 private const val SECONDARY_BUTTON_SIZE_DP = 48
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,61 +126,26 @@ fun SheetContent(
                 )
             }
 
-            val interactionSource = remember {
-                MutableInteractionSource()
-            }
-            val isPressed by interactionSource.collectIsPressedAsState()
-            Box(
-                modifier = Modifier
-                    .size(primaryBubbleSize)
-                    .background(
-                        color = if(isRecording) {
-                            MaterialTheme.colorScheme.primary95
+            EchoBubbleFloatingActionButton(
+                showBubble = isRecording,
+                onClick = if(isRecording) onCompleteRecording else onResumeClick,
+                icon = {
+                    Icon(
+                        imageVector = if(isRecording) {
+                            Icons.Default.Check
                         } else {
-                            Color.Transparent
+                            Icons.Filled.Microphone
                         },
-                        shape = CircleShape
-                    )
-                    .padding(10.dp)
-                    .background(
-                        color = if(isRecording) {
-                            MaterialTheme.colorScheme.primary90
+                        contentDescription = if(isRecording) {
+                            stringResource(R.string.finish_recording)
                         } else {
-                            Color.Transparent
+                            stringResource(R.string.start_recording)
                         },
-                        shape = CircleShape
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
-                    .padding(16.dp)
-                    .background(
-                        brush = if(isPressed) {
-                            MaterialTheme.colorScheme.pressedButtonGradient
-                        } else {
-                            MaterialTheme.colorScheme.buttonGradient
-                        },
-                        shape = CircleShape
-                    )
-                    .clip(CircleShape)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = LocalIndication.current,
-                        onClick = if(isRecording) onCompleteRecording else onResumeClick
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if(isRecording) {
-                        Icons.Default.Check
-                    } else {
-                        Icons.Filled.Microphone
-                    },
-                    contentDescription = if(isRecording) {
-                        stringResource(R.string.finish_recording)
-                    } else {
-                        stringResource(R.string.start_recording)
-                    },
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                },
+                primaryButtonSize = primaryBubbleSize
+            )
 
             FilledIconButton(
                 onClick = if(isRecording) onPauseClick else onCompleteRecording,

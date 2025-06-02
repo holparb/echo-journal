@@ -1,6 +1,7 @@
 package com.holparb.echojournal.echoes.presentation.echo_list
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
@@ -28,7 +30,7 @@ import com.holparb.echojournal.core.presentation.util.isAppInForeground
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
-import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordFloatingActionButton
+import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoQuickRecordFloatingActionButton
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoRecordingSheet
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
@@ -88,10 +90,33 @@ fun EchoListScreen(
     state: EchoListState,
     onAction: (EchoListAction) -> Unit,
 ) {
+    val context = LocalContext.current
     Scaffold(
         floatingActionButton = {
-            EchoRecordFloatingActionButton(
-                onClick = { onAction(EchoListAction.OnFabClick) }
+            EchoQuickRecordFloatingActionButton(
+                isQuickRecording = state.recordingState == RecordingState.QUICK_RECORDING,
+                onClick = {
+                    onAction(EchoListAction.OnRecordFabClick)
+                },
+                onLongPressStart = {
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if(hasPermission) {
+                        onAction(EchoListAction.OnRecordFabLongClick)
+                    } else {
+                        onAction(EchoListAction.OnRequestPermissionQuickRecording)
+                    }
+
+                },
+                onLongPressEnd = { cancelRecording ->
+                    if(cancelRecording) {
+                        onAction(EchoListAction.OnCancelRecording)
+                    } else {
+                        onAction(EchoListAction.OnCompleteRecording)
+                    }
+                }
             )
         },
         topBar = {
