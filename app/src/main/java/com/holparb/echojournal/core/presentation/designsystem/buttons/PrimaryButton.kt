@@ -69,6 +69,7 @@ private fun PrimaryButtonPreview() {
         PrimaryButton(
             text = "Button",
             onClick = {},
+            enabled = false,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Build,

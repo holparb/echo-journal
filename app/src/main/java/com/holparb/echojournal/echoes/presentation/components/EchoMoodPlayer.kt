@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun EchoMoodPlayer(
-    moodUi: MoodUi,
+    moodUi: MoodUi?,
     playbackState: PlaybackState,
     playerProgress: () -> Float,
     durationPlayed: Duration,

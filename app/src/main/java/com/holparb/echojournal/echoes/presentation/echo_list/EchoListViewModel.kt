@@ -192,7 +192,7 @@ class EchoListViewModel(
             if(recordingDetails.duration < MIN_RECORDING_DURATION) {
                 _events.send(EchoListEvent.RecordingTooShort)
             } else {
-                _events.send(EchoListEvent.OnDoneRecording)
+                _events.send(EchoListEvent.OnDoneRecording(recordingDetails))
             }
         }
     }
