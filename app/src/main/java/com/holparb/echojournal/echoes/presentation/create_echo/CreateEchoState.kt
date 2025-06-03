@@ -9,7 +9,7 @@ data class CreateEchoState(
     val addTopicText: String = "",
     val noteText: String = "",
     val showMoodSelector: Boolean = true,
-    val selectedMoodInSelector: MoodUi = MoodUi.NEUTRAL,
+    val selectedMoodInSelector: MoodUi? = null,
     val showTopicSuggestions: Boolean = false,
     val mood: MoodUi? = null,
     val searchResults: List<String> = emptyList(),

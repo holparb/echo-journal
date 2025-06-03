@@ -52,12 +52,14 @@ import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.holparb.echojournal.core.presentation.designsystem.theme.secondary70
 import com.holparb.echojournal.core.presentation.designsystem.theme.secondary95
 import com.holparb.echojournal.echoes.presentation.components.EchoMoodPlayer
+import com.holparb.echojournal.echoes.presentation.create_echo.components.SelectMoodSheet
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
+import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
 
 @Composable
 fun CreateEchoRoot(
-    viewModel: CreateEchoViewModel = viewModel()
+    viewModel: CreateEchoViewModel = koinViewModel<CreateEchoViewModel>()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -233,6 +235,24 @@ fun CreateEchoScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
+        }
+
+        if(state.showMoodSelector) {
+            SelectMoodSheet(
+                selectedMood = state.selectedMoodInSelector,
+                onMoodSelected = {
+                    onAction(CreateEchoAction.OnMoodClick(it))
+                },
+                onDismiss = {
+                    onAction(CreateEchoAction.OnDismissMoodSelector)
+                },
+                onCancelClick = {
+                    onAction(CreateEchoAction.OnCancelClick)
+                },
+                onConfirmClick = {
+                    onAction(CreateEchoAction.OnConfirmMood)
+                }
+            )
         }
     }
 }

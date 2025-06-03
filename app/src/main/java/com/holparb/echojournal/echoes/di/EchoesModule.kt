@@ -3,6 +3,7 @@ package com.holparb.echojournal.echoes.di
 import com.holparb.echojournal.echoes.data.recording.AndroidVoiceRecorder
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.echo_list.EchoListViewModel
+import com.holparb.echojournal.echoes.presentation.create_echo.CreateEchoViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -17,4 +18,5 @@ val echoesModule = module {
     } bind  VoiceRecorder::class
 
     viewModelOf(::EchoListViewModel)
+    viewModelOf(::CreateEchoViewModel)
 }

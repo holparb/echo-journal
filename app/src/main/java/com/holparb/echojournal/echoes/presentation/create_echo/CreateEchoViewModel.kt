@@ -2,10 +2,12 @@ package com.holparb.echojournal.echoes.presentation.create_echo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class CreateEchoViewModel : ViewModel() {
 
@@ -27,10 +29,10 @@ class CreateEchoViewModel : ViewModel() {
 
     fun onAction(action: CreateEchoAction) {
         when (action) {
-            CreateEchoAction.DismissMoodSelector -> {}
+            CreateEchoAction.OnDismissMoodSelector -> onDismissMoodSelector()
             is CreateEchoAction.OnAddTopicTextChange -> {}
             CreateEchoAction.OnCancelClick -> {}
-            CreateEchoAction.OnConfirmMood -> {}
+            CreateEchoAction.OnConfirmMood -> onConfirmMood()
             CreateEchoAction.OnCreateNewTopicClick -> {}
             CreateEchoAction.OnDismissTopicSuggestions -> {}
             CreateEchoAction.OnNavigateBack -> {}
@@ -42,8 +44,42 @@ class CreateEchoViewModel : ViewModel() {
             is CreateEchoAction.OnTitleChange -> {}
             is CreateEchoAction.OnTopicClick -> {}
             is CreateEchoAction.OnTrackSizeAvailable -> {}
-            is CreateEchoAction.SelectMood -> {}
-            CreateEchoAction.OnSelectMoodClick -> {}
+            is CreateEchoAction.OnMoodClick -> onMoodClick(action.mood)
+            CreateEchoAction.OnSelectMoodClick -> onSelectMoodClick()
+        }
+    }
+
+    private fun onSelectMoodClick() {
+        _state.update {
+            it.copy(
+                showMoodSelector = true
+            )
+        }
+    }
+
+    private fun onDismissMoodSelector() {
+        _state.update {
+            it.copy(
+                showMoodSelector = false
+            )
+        }
+    }
+
+    private fun onMoodClick(mood: MoodUi) {
+        _state.update {
+            it.copy(
+                selectedMoodInSelector = mood
+            )
+        }
+    }
+
+    private fun onConfirmMood() {
+        _state.update {
+            it.copy(
+                mood = it.selectedMoodInSelector,
+                isEchoValid = it.titleText.isNotBlank(),
+                showMoodSelector = false
+            )
         }
     }
 
