@@ -1,10 +1,16 @@
 package com.holparb.echojournal.echoes.presentation.create_echo
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.holparb.echojournal.app.navigation.NavigationRoute
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
+import com.holparb.echojournal.echoes.domain.recording.RecordingStorage
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
+import com.holparb.echojournal.echoes.presentation.util.toRecordingDetails
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
@@ -13,12 +19,20 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class CreateEchoViewModel : ViewModel() {
+class CreateEchoViewModel(
+    private val recordingStorage: RecordingStorage,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private var hasLoadedInitialData = false
+
+    private val route = savedStateHandle.toRoute<NavigationRoute.CreateEcho>()
+    private val recordingDetails = route.toRecordingDetails()
 
     private val _state = MutableStateFlow(CreateEchoState())
     val state = _state
@@ -35,6 +49,9 @@ class CreateEchoViewModel : ViewModel() {
             initialValue = CreateEchoState()
         )
 
+    private val _events = Channel<CreateEchoEvent>()
+    val events = _events.receiveAsFlow()
+
     fun onAction(action: CreateEchoAction) {
         when (action) {
             is CreateEchoAction.OnTitleChange -> onTitleChange(action.text)
@@ -47,7 +64,7 @@ class CreateEchoViewModel : ViewModel() {
 
             CreateEchoAction.OnPauseAudioClick -> {}
             CreateEchoAction.OnPlayAudioClick -> {}
-            CreateEchoAction.OnSaveClick -> {}
+            CreateEchoAction.OnSaveClick -> onSaveClick()
             is CreateEchoAction.OnTrackSizeAvailable -> {}
 
             CreateEchoAction.OnConfirmMood -> onConfirmMood()
@@ -59,6 +76,22 @@ class CreateEchoViewModel : ViewModel() {
             CreateEchoAction.OnCancelClick,
             CreateEchoAction.OnNavigateBack,
             CreateEchoAction.OnGoBack -> onShowConfirmLeaveDialog()
+        }
+    }
+
+    private fun onSaveClick() {
+        if(recordingDetails.filePath == null) {
+            return
+        }
+
+        viewModelScope.launch {
+            val savedFilePath = recordingStorage.savePersistently(
+                tempFilePath = recordingDetails.filePath
+            )
+            if(savedFilePath == null) {
+                _events.send(CreateEchoEvent.RecordingFileSaveFailed)
+                return@launch
+            }
         }
     }
 
