@@ -1,5 +1,6 @@
 package com.holparb.echojournal.echoes.presentation.create_echo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -26,6 +28,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -43,7 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.buttons.PrimaryButton
 import com.holparb.echojournal.core.presentation.designsystem.buttons.SecondaryButton
@@ -52,6 +54,7 @@ import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.holparb.echojournal.core.presentation.designsystem.theme.secondary70
 import com.holparb.echojournal.core.presentation.designsystem.theme.secondary95
 import com.holparb.echojournal.echoes.presentation.components.EchoMoodPlayer
+import com.holparb.echojournal.echoes.presentation.create_echo.components.EchoTopics
 import com.holparb.echojournal.echoes.presentation.create_echo.components.SelectMoodSheet
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import org.koin.androidx.compose.koinViewModel
@@ -59,13 +62,15 @@ import kotlin.random.Random
 
 @Composable
 fun CreateEchoRoot(
+    onNavigateBack: () -> Unit,
     viewModel: CreateEchoViewModel = koinViewModel<CreateEchoViewModel>()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     CreateEchoScreen(
         state = state,
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
+        onNavigateBack = onNavigateBack
     )
 }
 
@@ -74,7 +79,15 @@ fun CreateEchoRoot(
 fun CreateEchoScreen(
     state: CreateEchoState,
     onAction: (CreateEchoAction) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
+
+    BackHandler(
+        enabled = !state.showConfirmLeaveDialog
+    ) {
+        onAction(CreateEchoAction.OnGoBack)
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -181,6 +194,26 @@ fun CreateEchoScreen(
                 }
             )
 
+            EchoTopics(
+                topics = state.topics,
+                addTopicText = state.addTopicText,
+                showCreateTopicOption = state.showCreateTopicOption,
+                showTopicSuggestions = state.showTopicSuggestions,
+                searchResults = state.searchResults,
+                onTopicClick = {
+                    onAction(CreateEchoAction.OnTopicClick(it))
+                },
+                onDismissSuggestions = {
+                    onAction(CreateEchoAction.OnDismissTopicSuggestions)
+                },
+                onRemoveTopicClick = {
+                    onAction(CreateEchoAction.OnRemoveTopicClick(it))
+                },
+                onAddTopicTextChange = {
+                    onAction(CreateEchoAction.OnAddTopicTextChange(it))
+                }
+            )
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,11 +279,47 @@ fun CreateEchoScreen(
                 onDismiss = {
                     onAction(CreateEchoAction.OnDismissMoodSelector)
                 },
-                onCancelClick = {
-                    onAction(CreateEchoAction.OnCancelClick)
-                },
                 onConfirmClick = {
                     onAction(CreateEchoAction.OnConfirmMood)
+                }
+            )
+        }
+
+        if(state.showConfirmLeaveDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    onAction(CreateEchoAction.OnDismissConfirmLeaveDialog)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = onNavigateBack
+                    ) {
+                        Text(
+                            text = stringResource(R.string.discard),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            onAction(CreateEchoAction.OnDismissConfirmLeaveDialog)
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(R.string.discard_recording)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.cannot_be_undone)
+                    )
                 }
             )
         }
@@ -267,7 +336,8 @@ private fun Preview() {
                 titleText = "",
                 playbackAmplitudes = (1 .. 20).map { Random.nextFloat() }
             ),
-            onAction = {}
+            onAction = {},
+            onNavigateBack = {}
         )
     }
 }

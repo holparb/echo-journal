@@ -41,7 +41,6 @@ fun SelectMoodSheet(
     onMoodSelected: (MoodUi) -> Unit,
     onDismiss: () -> Unit,
     onConfirmClick: () -> Unit,
-    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
     selectedMood: MoodUi? = null,
 ) {
@@ -87,7 +86,11 @@ fun SelectMoodSheet(
                 )
                 PrimaryButton(
                     text = stringResource(R.string.confirm),
-                    onClick = onConfirmClick,
+                    onClick = {
+                        if(selectedMood != null) {
+                            onConfirmClick()
+                        }
+                    },
                     enabled = selectedMood != null,
                     modifier = Modifier.weight(1f),
                     leadingIcon = {
@@ -150,7 +153,6 @@ private fun SelectMoodSheetPreview() {
         SelectMoodSheet(
             onMoodSelected = {},
             onDismiss = {},
-            onCancelClick = {},
             onConfirmClick = {}
         )
     }
