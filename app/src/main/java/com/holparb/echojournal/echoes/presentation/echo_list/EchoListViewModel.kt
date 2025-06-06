@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.util.UiText
+import com.holparb.echojournal.echoes.domain.audio.AudioPlayer
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
+import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import kotlinx.coroutines.channels.Channel
@@ -24,10 +26,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class EchoListViewModel(
-    private val voiceRecorder: VoiceRecorder
+    private val voiceRecorder: VoiceRecorder,
+    private val audioPlayer: AudioPlayer
 ) : ViewModel() {
 
     companion object {
@@ -35,6 +39,8 @@ class EchoListViewModel(
     }
 
     private var hasLoadedInitialData = false
+
+    private val playingEchoId = MutableStateFlow<Int?>(null)
 
     private val _state = MutableStateFlow(EchoListState())
     val state = _state
@@ -106,9 +112,9 @@ class EchoListViewModel(
                 toggleTopicFilter(action.topic)
             }
             EchoListAction.OnSettingsClick -> {}
-            EchoListAction.OnPauseEchoClick -> {}
-            is EchoListAction.OnPlayEchoClick -> {}
-            is EchoListAction.OnTrackSizeAvailable -> {}
+            EchoListAction.OnPauseEchoClick -> onPauseEchoClick()
+            is EchoListAction.OnPlayEchoClick -> onPlayEchoClick(action.echoId)
+            is EchoListAction.OnTrackSizeAvailable -> onTrackSizeAvailable(action.trackSizeInfo)
 
             EchoListAction.OnAudioPermissionGranted -> {
                 startRecording(audioCaptureMethod = AudioCaptureMethod.STANDARD)
@@ -122,6 +128,49 @@ class EchoListViewModel(
 
     private fun requestAudioPermission() = viewModelScope.launch {
         _events.send(EchoListEvent.RequestAudioPermission)
+    }
+
+    private fun onTrackSizeAvailable(trackSizeInfo: TrackSizeInfo) {
+
+    }
+
+    private fun onPlayEchoClick(echoId: Int) {
+        val selectedEcho = state.value.echoes.values.flatten().first { it.id == echoId }
+        val activeTrack = audioPlayer.activeTrack.value
+        val isNewEcho = playingEchoId.value != echoId
+        val isSameEchoPlayingFromBeginning = echoId == playingEchoId.value && activeTrack != null
+                && activeTrack.durationPlayed == Duration.ZERO
+
+        when {
+            isNewEcho || isSameEchoPlayingFromBeginning -> {
+                playingEchoId.update { echoId }
+                audioPlayer.stop()
+                audioPlayer.play(
+                    filePath = selectedEcho.audioFilePath,
+                    onComplete = ::completePlayback
+                )
+            }
+            else -> audioPlayer.resume()
+        }
+    }
+
+    private fun completePlayback() {
+        _state.update {
+            it.copy(
+                echoes = it.echoes.mapValues { (_, echoes) ->
+                    echoes.map { echo ->
+                        echo.copy(
+                            playbackCurrentDuration = Duration.ZERO
+                        )
+                    }
+                }
+            )
+        }
+        playingEchoId.update { null }
+    }
+
+    private fun onPauseEchoClick() {
+        audioPlayer.pause()
     }
 
     private fun startRecording(audioCaptureMethod: AudioCaptureMethod) {

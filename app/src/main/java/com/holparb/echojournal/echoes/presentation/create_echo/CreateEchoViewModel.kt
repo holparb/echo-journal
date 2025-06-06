@@ -43,7 +43,9 @@ class CreateEchoViewModel(
     private val route = savedStateHandle.toRoute<NavigationRoute.CreateEcho>()
     private val recordingDetails = route.toRecordingDetails()
 
-    private val _state = MutableStateFlow(CreateEchoState())
+    private val _state = MutableStateFlow(CreateEchoState(
+        playbackTotalDuration = recordingDetails.duration
+    ))
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
