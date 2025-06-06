@@ -22,7 +22,7 @@ fun TransparentHintTextField(
     hintText: String? = null,
     hintColor: Color = MaterialTheme.colorScheme.outlineVariant,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.outlineVariant
+        color = MaterialTheme.colorScheme.onSurface
     ),
     maxLines: Int = Int.MAX_VALUE,
     singleLine: Boolean = false,
