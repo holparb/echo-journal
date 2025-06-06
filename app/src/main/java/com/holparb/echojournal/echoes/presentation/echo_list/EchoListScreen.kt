@@ -27,6 +27,7 @@ import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.holparb.echojournal.core.presentation.util.ObserveAsEvents
 import com.holparb.echojournal.core.presentation.util.isAppInForeground
+import com.holparb.echojournal.echoes.domain.recording.RecordingDetails
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoFilterRow
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoList
 import com.holparb.echojournal.echoes.presentation.echo_list.components.EchoListTopBar
@@ -36,10 +37,10 @@ import com.holparb.echojournal.echoes.presentation.echo_list.components.EmptyEch
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun EchoListRoot(
+    onNavigateToCreateEcho: (recordingDetails: RecordingDetails) -> Unit,
     viewModel: EchoListViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -59,8 +60,8 @@ fun EchoListRoot(
             EchoListEvent.RequestAudioPermission -> {
                 permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
-            EchoListEvent.OnDoneRecording -> {
-                Timber.d("Recording successful")
+            is EchoListEvent.OnDoneRecording -> {
+                onNavigateToCreateEcho(event.recordingDetails)
             }
             EchoListEvent.RecordingTooShort -> {
                 Toast.makeText(

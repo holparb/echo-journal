@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.rememberNavController
+import com.holparb.echojournal.app.navigation.NavigationRoot
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
-import com.holparb.echojournal.echoes.presentation.echo_list.EchoListRoot
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EchoJournalTheme {
-                EchoListRoot()
+                NavigationRoot(navController = rememberNavController())
             }
         }
     }
