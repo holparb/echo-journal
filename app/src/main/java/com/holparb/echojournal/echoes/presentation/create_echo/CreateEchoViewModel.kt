@@ -43,8 +43,15 @@ class CreateEchoViewModel(
     private val route = savedStateHandle.toRoute<NavigationRoute.CreateEcho>()
     private val recordingDetails = route.toRecordingDetails()
 
+    private val restoredTopics = savedStateHandle.get<String>("topics")?.split(",")
     private val _state = MutableStateFlow(CreateEchoState(
-        playbackTotalDuration = recordingDetails.duration
+        playbackTotalDuration = recordingDetails.duration,
+        titleText = savedStateHandle["titleText"] ?: "",
+        noteText = savedStateHandle["noteText"] ?: "",
+        topics = restoredTopics ?: emptyList(),
+        mood = savedStateHandle.get<String>("mood")?.let { MoodUi.valueOf(it) },
+        showMoodSelector = savedStateHandle.get<String>("mood") == null,
+        isEchoValid = savedStateHandle.get<Boolean>("isEchoValid") == true
     ))
     val state = _state
         .onStart {
@@ -53,6 +60,13 @@ class CreateEchoViewModel(
                 observeAddTopicText()
                 hasLoadedInitialData = true
             }
+        }
+        .onEach { state ->
+            savedStateHandle["titleText"] = state.titleText
+            savedStateHandle["mood"] = state.mood?.name
+            savedStateHandle["noteText"] = state.noteText
+            savedStateHandle["topics"] = state.topics.joinToString(",")
+            savedStateHandle["isEchoValid"] = state.isEchoValid
         }
         .stateIn(
             scope = viewModelScope,
