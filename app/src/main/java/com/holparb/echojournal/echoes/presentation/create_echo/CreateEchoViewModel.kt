@@ -212,7 +212,8 @@ class CreateEchoViewModel(
     private fun onTitleChange(text: String) {
         _state.update {
             it.copy(
-                titleText = text
+                titleText = text,
+                isEchoValid = text.isNotBlank() && it.mood != null
             )
         }
     }
