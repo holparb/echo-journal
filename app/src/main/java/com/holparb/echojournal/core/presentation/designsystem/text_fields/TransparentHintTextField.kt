@@ -22,7 +22,7 @@ fun TransparentHintTextField(
     hintText: String? = null,
     hintColor: Color = MaterialTheme.colorScheme.outlineVariant,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurface
     ),
     maxLines: Int = Int.MAX_VALUE,
     singleLine: Boolean = false,
@@ -61,7 +61,7 @@ fun TransparentHintTextField(
 private fun TransparentHintTextFieldPreview() {
     EchoJournalTheme {
         TransparentHintTextField(
-            text = "",
+            text = "Asdrofl",
             onValueChange = {},
             hintText = "Type something",
         )

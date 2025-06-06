@@ -14,7 +14,8 @@ data class EchoListItemUi (
     val amplitudes: List<Float>,
     val playbackTotalDuration: Duration,
     val playbackCurrentDuration: Duration = Duration.ZERO,
-    val playbackState: PlaybackState = PlaybackState.STOPPED
+    val playbackState: PlaybackState = PlaybackState.STOPPED,
+    val audioFilePath: String = ""
 ) {
     val formattedRecordedAt = recordedAt.toReadableTime()
     val playbackRatio = (playbackCurrentDuration / playbackTotalDuration).toFloat()

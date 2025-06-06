@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,7 +34,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun EchoMoodPlayer(
-    moodUi: MoodUi,
+    moodUi: MoodUi?,
     playbackState: PlaybackState,
     playerProgress: () -> Float,
     durationPlayed: Duration,
@@ -69,6 +71,8 @@ fun EchoMoodPlayer(
         "${durationPlayed.formatMMSS()}/${totalPlaybackDuration.formatMMSS()}"
     }
 
+    val density = LocalDensity.current
+
     Surface(
         shape = CircleShape,
         color = backgroundColor,
@@ -98,10 +102,23 @@ fun EchoMoodPlayer(
                     .weight(1f)
                     .padding(vertical = 10.dp, horizontal = 8.dp)
                     .fillMaxHeight()
+                    .onSizeChanged {
+                        if(it.width > 0) {
+                            onTrackSizeAvailable(
+                                TrackSizeInfo(
+                                    trackWidth = it.width.toFloat(),
+                                    barWidth = with(density) { amplitudeBarWidth.toPx() },
+                                    spacing = with(density) { amplitudeBarSpacing.toPx() }
+                                )
+                            )
+                        }
+                    }
             )
             Text(
                 text = formattedText,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFeatureSettings = "tnum"
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 8.dp)
             )
