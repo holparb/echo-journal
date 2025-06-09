@@ -1,9 +1,11 @@
 package com.holparb.echojournal.echoes.di
 
 import com.holparb.echojournal.echoes.data.audio.AndroidAudioPlayer
+import com.holparb.echojournal.echoes.data.data_source.RoomEchoDataSource
 import com.holparb.echojournal.echoes.data.recording.AndroidVoiceRecorder
 import com.holparb.echojournal.echoes.data.recording.InternalRecordingStorage
 import com.holparb.echojournal.echoes.domain.audio.AudioPlayer
+import com.holparb.echojournal.echoes.domain.data_source.EchoDataSource
 import com.holparb.echojournal.echoes.domain.recording.RecordingStorage
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.create_echo.CreateEchoViewModel
@@ -17,6 +19,7 @@ val echoesModule = module {
     singleOf(::AndroidVoiceRecorder) bind  VoiceRecorder::class
     singleOf(::InternalRecordingStorage) bind RecordingStorage::class
     singleOf(::AndroidAudioPlayer) bind AudioPlayer::class
+    singleOf(::RoomEchoDataSource) bind EchoDataSource::class
 
     viewModelOf(::EchoListViewModel)
     viewModelOf(::CreateEchoViewModel)
