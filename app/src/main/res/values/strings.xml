@@ -56,5 +56,7 @@
     <string name="discard_recording">Are you sure you want to discard recording?</string>
     <string name="cannot_be_undone">This action cannot be undone!</string>
     <string name="recording_save_failed">Error while trying to save recording</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
 
 </resources>

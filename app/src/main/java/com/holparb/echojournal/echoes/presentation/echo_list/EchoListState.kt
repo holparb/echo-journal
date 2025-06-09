@@ -2,7 +2,6 @@ package com.holparb.echojournal.echoes.presentation.echo_list
 
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
-import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.holparb.echojournal.core.presentation.util.UiText
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoDaySection
@@ -22,9 +21,9 @@ data class EchoListState(
     val hasEchoesRecorded: Boolean = false,
     val hasActiveTopicFilters: Boolean = false,
     val hasActiveMoodFilters: Boolean = false,
-    val isLoadingData: Boolean = false,
+    val isLoadingData: Boolean = true,
     val moods: List<Selectable<MoodUi>> = emptyList(),
-    val topics: List<Selectable<String>> = listOf("Love", "Happy", "Work").asUnselectedItems(),
+    val topics: List<Selectable<String>> = emptyList(),
     val moodChipContent: MoodChipContent = MoodChipContent(),
     val selectedEchoFilterChip: EchoFilterChip? = null,
     val topicChipTitle: UiText = UiText.StringResource(R.string.all_topics),

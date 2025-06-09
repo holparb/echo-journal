@@ -6,18 +6,26 @@ import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.holparb.echojournal.core.presentation.util.UiText
 import com.holparb.echojournal.echoes.domain.audio.AudioPlayer
+import com.holparb.echojournal.echoes.domain.data_source.EchoDataSource
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.echo_list.models.AudioCaptureMethod
 import com.holparb.echojournal.echoes.presentation.echo_list.models.EchoFilterChip
 import com.holparb.echojournal.echoes.presentation.echo_list.models.RecordingState
 import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
+import com.holparb.echojournal.echoes.presentation.models.EchoListItemUi
 import com.holparb.echojournal.echoes.presentation.models.MoodChipContent
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
+import com.holparb.echojournal.echoes.presentation.models.PlaybackState
+import com.holparb.echojournal.echoes.presentation.util.AmplitudeNormalizer
+import com.holparb.echojournal.echoes.presentation.util.toEchoListItemUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -26,12 +34,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class EchoListViewModel(
     private val voiceRecorder: VoiceRecorder,
-    private val audioPlayer: AudioPlayer
+    private val audioPlayer: AudioPlayer,
+    private val echoDataSource: EchoDataSource
 ) : ViewModel() {
 
     companion object {
@@ -41,12 +53,16 @@ class EchoListViewModel(
     private var hasLoadedInitialData = false
 
     private val playingEchoId = MutableStateFlow<Int?>(null)
+    private val selectedMoodFilters = MutableStateFlow<List<MoodUi>>(emptyList())
+    private val selectedTopicFilters = MutableStateFlow<List<String>>(emptyList())
+    private val audioTrackSizeInfo = MutableStateFlow<TrackSizeInfo?>(null)
 
     private val _state = MutableStateFlow(EchoListState())
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
                 observeFilters()
+                observeEchoes()
                 hasLoadedInitialData = true
             }
         }
@@ -56,8 +72,29 @@ class EchoListViewModel(
             initialValue = EchoListState()
         )
 
-    private val selectedMoodFilters = MutableStateFlow<List<MoodUi>>(emptyList())
-    private val selectedTopicFilters = MutableStateFlow<List<String>>(emptyList())
+    private val echoes = echoDataSource
+        .observeEchoes()
+        .onEach { echoes ->
+            _state.update { it.copy(
+                hasEchoesRecorded = echoes.isNotEmpty(),
+                isLoadingData = false
+            ) }
+        }
+        .combine(audioTrackSizeInfo) { echoes, trackSizeInfo ->
+            if(trackSizeInfo != null) {
+                echoes.map { echo ->
+                    echo.copy(
+                        audioAmplitudes = AmplitudeNormalizer.normalize(
+                            sourceAmplitudes = echo.audioAmplitudes,
+                            trackWidth = trackSizeInfo.trackWidth,
+                            barWidth = trackSizeInfo.barWidth,
+                            spacing = trackSizeInfo.spacing
+                        )
+                    )
+                }
+            } else echoes
+        }
+        .flowOn(Dispatchers.Default)
 
     private val _events = Channel<EchoListEvent>()
     val events = _events.receiveAsFlow()
@@ -114,7 +151,9 @@ class EchoListViewModel(
             EchoListAction.OnSettingsClick -> {}
             EchoListAction.OnPauseEchoClick -> onPauseEchoClick()
             is EchoListAction.OnPlayEchoClick -> onPlayEchoClick(action.echoId)
-            is EchoListAction.OnTrackSizeAvailable -> onTrackSizeAvailable(action.trackSizeInfo)
+            is EchoListAction.OnTrackSizeAvailable -> {
+                audioTrackSizeInfo.update { action.trackSizeInfo }
+            }
 
             EchoListAction.OnAudioPermissionGranted -> {
                 startRecording(audioCaptureMethod = AudioCaptureMethod.STANDARD)
@@ -128,10 +167,6 @@ class EchoListViewModel(
 
     private fun requestAudioPermission() = viewModelScope.launch {
         _events.send(EchoListEvent.RequestAudioPermission)
-    }
-
-    private fun onTrackSizeAvailable(trackSizeInfo: TrackSizeInfo) {
-
     }
 
     private fun onPlayEchoClick(echoId: Int) {
@@ -266,6 +301,40 @@ class EchoListViewModel(
         }
     }
 
+    private fun observeEchoes() {
+        combine(
+            echoes,
+            playingEchoId,
+            audioPlayer.activeTrack
+        ) { echoes, playingEchoId, activeTrack ->
+            if(playingEchoId == null || activeTrack == null) {
+                return@combine echoes.map { it.toEchoListItemUi() }
+            }
+
+            echoes.map { echo ->
+                if(playingEchoId == echo.id) {
+                    echo.toEchoListItemUi(
+                        currentPlaybackDuration = activeTrack.durationPlayed,
+                        playbackState = if(activeTrack.isPlaying) {
+                            PlaybackState.PLAYING
+                        } else {
+                            PlaybackState.PAUSED
+                        }
+                    )
+                } else echo.toEchoListItemUi()
+            }
+        }
+            .groupByDate().onEach { groupedEchoes ->
+                _state.update {
+                    it.copy(
+                        echoes = groupedEchoes
+                    )
+                }
+            }
+            .flowOn(Dispatchers.Default)
+            .launchIn(viewModelScope)
+    }
+
     private fun observeFilters() {
         combine(
             selectedTopicFilters,
@@ -331,6 +400,31 @@ class EchoListViewModel(
                     )
                 )
             }
+        }
+    }
+
+    private fun Flow<List<EchoListItemUi>>.groupByDate(): Flow<Map<UiText, List<EchoListItemUi>>> {
+        val formatter = DateTimeFormatter.ofPattern("dd MMM")
+        val today = LocalDate.now()
+        return map { echoes ->
+            echoes
+                .groupBy { echo ->
+                    LocalDate.ofInstant(
+                        echo.recordedAt,
+                        ZoneId.systemDefault()
+                    )
+                }
+                .mapValues { (_, echoes) ->
+                    echoes.sortedByDescending { it.recordedAt }
+                }
+                .toSortedMap(compareByDescending { it })
+                .mapKeys { (date, _) ->
+                    when(date) {
+                        today -> UiText.StringResource(R.string.today)
+                        today.minusDays(1) -> UiText.StringResource(R.string.yesterday)
+                        else -> UiText.Dynamic(date.format(formatter))
+                    }
+                }
         }
     }
 }
