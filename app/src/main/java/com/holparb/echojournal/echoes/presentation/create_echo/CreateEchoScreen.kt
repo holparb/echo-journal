@@ -81,6 +81,10 @@ fun CreateEchoRoot(
                 ).show()
                 onNavigateBack()
             }
+
+            CreateEchoEvent.EchoSuccessfullySaved -> {
+                onNavigateBack()
+            }
         }
     }
 

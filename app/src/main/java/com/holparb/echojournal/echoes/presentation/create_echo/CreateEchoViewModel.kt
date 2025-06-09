@@ -7,6 +7,9 @@ import androidx.navigation.toRoute
 import com.holparb.echojournal.app.navigation.NavigationRoute
 import com.holparb.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.holparb.echojournal.echoes.domain.audio.AudioPlayer
+import com.holparb.echojournal.echoes.domain.data_source.Echo
+import com.holparb.echojournal.echoes.domain.data_source.EchoDataSource
+import com.holparb.echojournal.echoes.domain.data_source.Mood
 import com.holparb.echojournal.echoes.domain.recording.RecordingStorage
 import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
@@ -30,12 +33,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
 import kotlin.time.Duration
 
 class CreateEchoViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val recordingStorage: RecordingStorage,
-    private val audioPlayer: AudioPlayer
+    private val audioPlayer: AudioPlayer,
+    private val echoDataSource: EchoDataSource
 ) : ViewModel() {
 
     private var hasLoadedInitialData = false
@@ -148,7 +153,7 @@ class CreateEchoViewModel(
     }
 
     private fun onSaveClick() {
-        if(recordingDetails.filePath == null) {
+        if(recordingDetails.filePath == null || !state.value.isEchoValid) {
             return
         }
 
@@ -160,6 +165,23 @@ class CreateEchoViewModel(
                 _events.send(CreateEchoEvent.RecordingFileSaveFailed)
                 return@launch
             }
+
+            val currentState = state.value
+            val echo = Echo(
+                mood = currentState.mood?.let {
+                    Mood.valueOf(it.name)
+                } ?: throw IllegalStateException("Mood is null"),
+                title = currentState.titleText.trim(),
+                note = currentState.noteText.ifBlank { null },
+                topics = currentState.topics,
+                audioAmplitudes = recordingDetails.amplitudes,
+                audioFilePath = savedFilePath,
+                audioPlaybackLength = currentState.playbackTotalDuration,
+                recordedAt = Instant.now()
+            )
+
+            echoDataSource.insertEcho(echo)
+            _events.send(CreateEchoEvent.EchoSuccessfullySaved)
         }
     }
 
@@ -230,7 +252,8 @@ class CreateEchoViewModel(
         _state.update {
             it.copy(
                 addTopicText = "",
-                topics = (it.topics + topic).distinct()
+                topics = (it.topics + topic).distinct(),
+                showCreateTopicOption = false
             )
         }
     }
@@ -251,9 +274,12 @@ class CreateEchoViewModel(
 
     private fun onAddTopicTextChange(text: String) {
         _state.update {
-            it.copy(addTopicText = text.filter { char ->
-                char.isLetterOrDigit()
-            })
+            it.copy(
+                addTopicText = text.filter { char ->
+                    char.isLetterOrDigit()
+                },
+                showCreateTopicOption = text.isNotBlank()
+            )
         }
     }
 
