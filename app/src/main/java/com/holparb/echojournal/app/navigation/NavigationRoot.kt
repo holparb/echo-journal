@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.holparb.echojournal.echoes.presentation.create_echo.CreateEchoRoot
 import com.holparb.echojournal.echoes.presentation.echo_list.EchoListRoot
+import com.holparb.echojournal.echoes.presentation.settings.SettingsRoot
 import com.holparb.echojournal.echoes.presentation.util.toCreateEchoRoute
 
 @Composable
@@ -20,11 +21,19 @@ fun NavigationRoot(
             EchoListRoot(
                 onNavigateToCreateEcho = { recordingDetails ->
                     navController.navigate(recordingDetails.toCreateEchoRoute())
+                },
+                onNavigateToSettings = {
+                    navController.navigate(NavigationRoute.Settings)
                 }
             )
         }
         composable<NavigationRoute.CreateEcho> {
             CreateEchoRoot(
+                onNavigateBack = navController::navigateUp
+            )
+        }
+        composable<NavigationRoute.Settings> {
+            SettingsRoot(
                 onNavigateBack = navController::navigateUp
             )
         }

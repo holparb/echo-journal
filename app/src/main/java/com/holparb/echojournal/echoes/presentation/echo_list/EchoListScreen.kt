@@ -41,6 +41,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun EchoListRoot(
     onNavigateToCreateEcho: (recordingDetails: RecordingDetails) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: EchoListViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -82,7 +83,13 @@ fun EchoListRoot(
 
     EchoListScreen(
         state = state,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when(action) {
+                is EchoListAction.OnSettingsClick -> onNavigateToSettings()
+                else -> Unit
+            }
+            viewModel.onAction(action)
+        }
     )
 }
 

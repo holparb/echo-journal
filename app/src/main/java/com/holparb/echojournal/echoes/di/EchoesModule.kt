@@ -10,6 +10,7 @@ import com.holparb.echojournal.echoes.domain.recording.RecordingStorage
 import com.holparb.echojournal.echoes.domain.recording.VoiceRecorder
 import com.holparb.echojournal.echoes.presentation.create_echo.CreateEchoViewModel
 import com.holparb.echojournal.echoes.presentation.echo_list.EchoListViewModel
+import com.holparb.echojournal.echoes.presentation.settings.SettingsViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -23,4 +24,5 @@ val echoesModule = module {
 
     viewModelOf(::EchoListViewModel)
     viewModelOf(::CreateEchoViewModel)
+    viewModelOf(::SettingsViewModel)
 }
