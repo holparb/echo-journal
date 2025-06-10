@@ -163,10 +163,10 @@ fun EchoListScreen(
                 else -> {
                     EchoList(
                         sections = state.echoDaySectionsList,
-                        onPlayClick = { EchoListAction.OnPlayEchoClick(it) },
-                        onPauseClick = { EchoListAction.OnPauseEchoClick },
+                        onPlayClick = { onAction(EchoListAction.OnPlayEchoClick(it)) },
+                        onPauseClick = { onAction(EchoListAction.OnPauseEchoClick) },
                         onTrackSizeAvailable = { trackSizeInfo ->
-                            EchoListAction.OnTrackSizeAvailable(trackSizeInfo)
+                            onAction(EchoListAction.OnTrackSizeAvailable(trackSizeInfo))
                         }
                     )
                 }

@@ -8,9 +8,9 @@ import com.holparb.echojournal.core.database.echo.EchoEntity
 import com.holparb.echojournal.core.database.topic.TopicEntity
 
 @Entity(
-    primaryKeys = ["echoId", "topic"]
+    primaryKeys = ["echoId", "topic"],
 )
-data class EchoTopicCrossRef (
+data class EchoTopicCrossRef(
     val echoId: Int,
     val topic: String
 )
