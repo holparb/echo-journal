@@ -27,6 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.holparb.echojournal.echoes.presentation.models.MoodUi
+import com.holparb.echojournal.echoes.presentation.settings.components.MoodCard
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -90,7 +92,12 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
+            MoodCard(
+                selectedMood = state.selectedMood,
+                onSelectMood = {
+                    onAction(SettingsAction.OnSelectMood(it))
+                }
+            )
         }
     }
 }
@@ -100,7 +107,9 @@ fun SettingsScreen(
 private fun Preview() {
     EchoJournalTheme {
         SettingsScreen(
-            state = SettingsState(),
+            state = SettingsState(
+                selectedMood = MoodUi.EXCITED
+            ),
             onAction = {}
         )
     }

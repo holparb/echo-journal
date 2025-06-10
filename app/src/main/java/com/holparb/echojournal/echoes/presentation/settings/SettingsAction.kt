@@ -4,8 +4,8 @@ import com.holparb.echojournal.echoes.presentation.models.MoodUi
 
 sealed interface SettingsAction {
     data class OnSearchTextChange(val text: String): SettingsAction
-    data class OnMoodSelected(val mood: MoodUi?): SettingsAction
-    data object OnCreateTopicClick: SettingsAction
+    data class OnSelectMood(val mood: MoodUi): SettingsAction
+    data class OnSelectTopic(val topic: String): SettingsAction
     data class OnRemoveTopicClick(val topic: String): SettingsAction
     data object OnBackClick: SettingsAction
     data object OnDismissTopicDropdown: SettingsAction

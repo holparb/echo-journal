@@ -11,6 +11,7 @@ import com.holparb.echojournal.echoes.domain.data_source.Echo
 import com.holparb.echojournal.echoes.domain.data_source.EchoDataSource
 import com.holparb.echojournal.echoes.domain.data_source.Mood
 import com.holparb.echojournal.echoes.domain.recording.RecordingStorage
+import com.holparb.echojournal.echoes.domain.settings.SettingsPreferences
 import com.holparb.echojournal.echoes.presentation.echo_list.models.TrackSizeInfo
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 import com.holparb.echojournal.echoes.presentation.models.PlaybackState
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -40,7 +42,8 @@ class CreateEchoViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val recordingStorage: RecordingStorage,
     private val audioPlayer: AudioPlayer,
-    private val echoDataSource: EchoDataSource
+    private val echoDataSource: EchoDataSource,
+    private val settingsPreferences: SettingsPreferences
 ) : ViewModel() {
 
     private var hasLoadedInitialData = false
@@ -61,8 +64,8 @@ class CreateEchoViewModel(
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
-                /** Load initial data here **/
                 observeAddTopicText()
+                fetchDefaultSettings()
                 hasLoadedInitialData = true
             }
         }
@@ -109,6 +112,35 @@ class CreateEchoViewModel(
             CreateEchoAction.OnNavigateBack,
             CreateEchoAction.OnGoBack -> onShowConfirmLeaveDialog()
         }
+    }
+
+    private fun fetchDefaultSettings() {
+        settingsPreferences
+            .observeDefaultMood()
+            .take(1)
+            .onEach { defaultMood ->
+                val moodUi = MoodUi.valueOf(defaultMood.name)
+                _state.update {
+                    it.copy(
+                        selectedMoodInSelector = moodUi,
+                        mood = moodUi,
+                        showMoodSelector = false
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+
+        settingsPreferences
+            .observeDefaultTopics()
+            .take(1)
+            .onEach { defaultTopic ->
+                _state.update {
+                    it.copy(
+                        topics = defaultTopic
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun onPlayAudioClick() {
