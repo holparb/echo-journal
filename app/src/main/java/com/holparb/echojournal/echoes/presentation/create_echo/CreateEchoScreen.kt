@@ -294,7 +294,7 @@ fun CreateEchoScreen(
         if(state.showMoodSelector) {
             SelectMoodSheet(
                 selectedMood = state.selectedMoodInSelector,
-                onMoodSelected = {
+                onSelectMood = {
                     onAction(CreateEchoAction.OnMoodClick(it))
                 },
                 onDismiss = {
