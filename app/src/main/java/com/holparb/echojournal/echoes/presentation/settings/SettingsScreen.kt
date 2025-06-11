@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,8 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.holparb.echojournal.R
 import com.holparb.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.holparb.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.holparb.echojournal.core.presentation.util.defaultShadow
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
-import com.holparb.echojournal.echoes.presentation.settings.components.MoodCard
+import com.holparb.echojournal.echoes.presentation.settings.components.MoodSelectorCard
+import com.holparb.echojournal.echoes.presentation.settings.components.TopicSelectorCard
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -92,11 +95,37 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            MoodCard(
+            MoodSelectorCard(
                 selectedMood = state.selectedMood,
                 onSelectMood = {
                     onAction(SettingsAction.OnSelectMood(it))
-                }
+                },
+                modifier = Modifier.defaultShadow(shape = RoundedCornerShape(8.dp))
+            )
+
+            TopicSelectorCard(
+                topics = state.topics,
+                searchText = state.searchText,
+                topicSuggestions = state.suggestedTopics,
+                showCreateTopicOption = state.showCreateTopicOption,
+                showSuggestionsDropDown = state.isTopicSuggestionsVisible,
+                canInputText = state.isTopicTextInputVisible,
+                onRemoveTopicClick = {
+                    onAction(SettingsAction.OnRemoveTopicClick(it))
+                },
+                onToggleCanInputText = {
+                    onAction(SettingsAction.OnAddButtonClick)
+                },
+                onSearchTextChange = {
+                    onAction(SettingsAction.OnSearchTextChange(it))
+                },
+                onAddTopicClick = {
+                    onAction(SettingsAction.OnSelectTopic(it))
+                },
+                onDismissSuggestionsDropDown = {
+                    onAction(SettingsAction.OnDismissTopicDropdown)
+                },
+                modifier = Modifier.defaultShadow(shape = RoundedCornerShape(8.dp))
             )
         }
     }

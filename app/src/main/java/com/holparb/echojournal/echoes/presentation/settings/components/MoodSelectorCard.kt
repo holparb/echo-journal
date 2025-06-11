@@ -22,7 +22,7 @@ import com.holparb.echojournal.echoes.presentation.components.MoodSelectorRow
 import com.holparb.echojournal.echoes.presentation.models.MoodUi
 
 @Composable
-fun MoodCard(
+fun MoodSelectorCard(
     selectedMood: MoodUi?,
     onSelectMood: (MoodUi) -> Unit,
     modifier: Modifier = Modifier
@@ -56,9 +56,9 @@ fun MoodCard(
 
 @Preview
 @Composable
-private fun MoodCardPreview() {
+private fun MoodSelectorCardPreview() {
     EchoJournalTheme {
-        MoodCard(
+        MoodSelectorCard(
             selectedMood = MoodUi.EXCITED,
             onSelectMood = {},
         )
