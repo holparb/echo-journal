@@ -58,5 +58,6 @@
     <string name="recording_save_failed">Error while trying to save recording</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
+    <string name="record_new_echo">Record new echo</string>
 
 </resources>

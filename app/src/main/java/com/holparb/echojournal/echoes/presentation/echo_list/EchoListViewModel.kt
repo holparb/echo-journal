@@ -1,5 +1,6 @@
 package com.holparb.echojournal.echoes.presentation.echo_list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.holparb.echojournal.R
@@ -44,7 +45,8 @@ import kotlin.time.Duration.Companion.seconds
 class EchoListViewModel(
     private val voiceRecorder: VoiceRecorder,
     private val audioPlayer: AudioPlayer,
-    private val echoDataSource: EchoDataSource
+    private val echoDataSource: EchoDataSource,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     companion object {
@@ -64,6 +66,7 @@ class EchoListViewModel(
             if (!hasLoadedInitialData) {
                 observeFilters()
                 observeEchoes()
+                fetchNavigationArgs()
                 hasLoadedInitialData = true
             }
         }
@@ -164,6 +167,18 @@ class EchoListViewModel(
             EchoListAction.OnCompleteRecording -> stopRecording()
             EchoListAction.OnPauseRecordingClick -> pauseRecording()
             EchoListAction.OnResumeRecordingClick -> resumeRecording()
+        }
+    }
+
+    private fun fetchNavigationArgs() {
+        val startRecording = savedStateHandle["startRecording"] ?: false
+        if(startRecording) {
+            _state.update {
+                it.copy(
+                    currentCaptureMethod = AudioCaptureMethod.STANDARD
+                )
+            }
+            requestAudioPermission()
         }
     }
 
