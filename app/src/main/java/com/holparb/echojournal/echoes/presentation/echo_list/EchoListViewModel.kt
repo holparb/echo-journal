@@ -293,7 +293,19 @@ class EchoListViewModel(
             if(recordingDetails.duration < MIN_RECORDING_DURATION) {
                 _events.send(EchoListEvent.RecordingTooShort)
             } else {
-                _events.send(EchoListEvent.OnDoneRecording(recordingDetails))
+                _events.send(EchoListEvent.OnDoneRecording(
+                    recordingDetails = recordingDetails.copy(
+                        // Normalize so arbitrary track dimensions
+                        // will not exceed maximum allowed size in bundle
+                        // when passed as navigation arguments
+                        amplitudes = AmplitudeNormalizer.normalize(
+                            sourceAmplitudes = recordingDetails.amplitudes,
+                            trackWidth = 10_000f,
+                            barWidth = 20f,
+                            spacing = 15f
+                        )
+                    )
+                ))
             }
         }
     }
