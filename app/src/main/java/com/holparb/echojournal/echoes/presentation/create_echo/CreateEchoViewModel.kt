@@ -18,6 +18,7 @@ import com.holparb.echojournal.echoes.presentation.models.PlaybackState
 import com.holparb.echojournal.echoes.presentation.util.AmplitudeNormalizer
 import com.holparb.echojournal.echoes.presentation.util.toRecordingDetails
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +26,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -234,17 +237,27 @@ class CreateEchoViewModel(
         }
     }
 
-    @OptIn(FlowPreview::class)
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     private fun observeAddTopicText() {
         state
             .map { it.addTopicText }
             .distinctUntilChanged()
             .debounce(300)
-            .onEach { query ->
+            .filter { query ->
+                query.isNotBlank()
+            }
+            .flatMapLatest { query ->
                 _state.update {
                     it.copy(
-                        showTopicSuggestions = query.isNotBlank() && query.trim() !in it.topics,
-                        searchResults = listOf("Search", "Results").asUnselectedItems()
+                        showTopicSuggestions = query.trim() !in it.topics,
+                    )
+                }
+                echoDataSource.searchTopics(query)
+            }
+            .onEach { searchResults ->
+                _state.update {
+                    it.copy(
+                        searchResults = searchResults.asUnselectedItems()
                     )
                 }
             }

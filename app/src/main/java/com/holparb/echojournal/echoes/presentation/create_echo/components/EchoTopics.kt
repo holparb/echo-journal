@@ -81,6 +81,7 @@ fun EchoTopics(
         FlowRow(
             modifier = Modifier
                 .weight(1f)
+                .padding(start = 4.dp)
                 .height(IntrinsicSize.Min),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -131,8 +132,9 @@ fun EchoTopics(
                     leadingIcon = {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.hashtag),
-                            contentDescription = stringResource(R.string.topic_hashtag),
-                            tint = MaterialTheme.colorScheme.primary
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(14.dp)
                         )
                     },
                     maxDropdownHeight = dropDownMaxHeight,
